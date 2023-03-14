@@ -117,6 +117,9 @@ void loop() {
     digitalWrite(green_led, LOW);
     digitalWrite(red_led, LOW);
   }
+  else {
+    myservo.write(180);
+  }
 }
 
 
@@ -261,10 +264,10 @@ void junction(bool left_dir) {
   
   straight(high_speed, 2000);
   if (left_dir) {
-    turn_ninety_l(turn);
+    turn_ninety_r(turn);
   }
   else {
-    turn_ninety_r(turn);
+    turn_ninety_l(turn);
   }
 }
 
