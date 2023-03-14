@@ -1,3 +1,6 @@
+// comments on lines 91, 101, 242-244, 281 should tell you what to play around with to make it work. use trial and error to make sure it turns back onto the line after a junction
+
+
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
 #include "utility/Adafruit_MS_PWMServoDriver.h"
@@ -10,13 +13,13 @@ Adafruit_DCMotor *right = AFMS.getMotor(2);
 
 // declare line sensors below
 int blue = 8;
-int green = 9; //change this
-int red = 10; //change this
+int green = 6;
+int red = 7;
 int yellow = 11;
 
 int blinky_led = 2;
-int green_led;
-int red_led;
+int green_led = 5;
+int red_led = 4;
 int light_sensor = A1;
 
 int lines[4];
@@ -25,6 +28,7 @@ int low_speed = 100;
 int high_speed = 255;
 
 int junction_count = 0;
+int last_junc_time = 0;
 bool block_picked = false;
 bool block_is_blue = false;
 bool returning_home = false;
@@ -84,14 +88,17 @@ void loop() {
       junction_r();    
       junction_count = -1;  
     }
-    junction_count++;
+    if (millis() - last_junc_time > 2000) { // this is to ensure the same junction isn't counted multiple times. change 2000 if 2s seems too little/too much
+      junction_count++;
+    }
+    last_junc_time = millis();
   }
   else {
     line_follow();
   }
 
   bool inside_box = (lines[0] == 0 && lines[1] == 0 && lines[2] == 0 && lines[3] == 0);
-  if (inside_box) {
+  if (inside_box && (millis() - last_junc_time > 3000)) { // the 3000 is to stop it from dropping the block soon after grabbing it. 
     if (junction_count == 1) {
       stop(100);
       uturn();
@@ -232,13 +239,15 @@ void line_follow() {
 }
 
 void junction(bool left_dir) {
-  straight(high_speed, 900);
+  int turn = 1850;  // change this if you want to change how much it turns into/out of a junction
+  int dist = 2000; // change this if you want to change how much it moves into/out of a junction
+  straight(high_speed, 900); // use this to change how much it moves before turning into a junction
   
   if (left_dir) {
-    turn_ninety_r(1800);
+    turn_ninety_r(turn);
   }
   else {
-    turn_ninety_l(1800);
+    turn_ninety_l(turn);
   }
   reverse(high_speed, 2000);
   stop();
@@ -252,10 +261,10 @@ void junction(bool left_dir) {
   
   straight(high_speed, 2000);
   if (left_dir) {
-    turn_ninety_l(1800);
+    turn_ninety_l(turn);
   }
   else {
-    turn_ninety_r(1800);
+    turn_ninety_r(turn);
   }
 }
 
@@ -269,6 +278,7 @@ void junction_r() {
 
 void grab() {
   myservo.write(180);
+  delay(500); // increase the delay if it still seems to be detecting colour too early
   colour_detect();
 }
 
