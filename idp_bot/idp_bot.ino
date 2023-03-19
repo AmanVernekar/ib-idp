@@ -19,6 +19,7 @@ int green_led = 5;
 int red_led = 4;
 int light_sensor = A1;
 int PUSH_BUTTON_SWITCH = 3;
+int servo_pin = 10;
 
 int lines[4]; // array to store line sensor readings
 
@@ -63,7 +64,7 @@ void setup() {
   pinMode(green_led, OUTPUT);
   pinMode(red_led, OUTPUT);
   digitalWrite(blinky_led, LOW);
-  myservo.attach(10);
+  myservo.attach(servo_pin);
 
   Serial.begin(9600);
   Serial.println("Hello world!");
@@ -305,20 +306,20 @@ void colour_detect() {
     digitalWrite(green_led, HIGH);
     stop(5000);    
   }
-  else if (median_light < 500) { //air
-    Serial.println("Air");
-    block_picked = true;
-    block_is_blue = false;
-    drop(); // colour detection hasn't worked so we drop the block and pick it up again (hopefully in a slightly different orientation so that colour detection works)
-    delay(1000);
-    grab();
-  }
-  else { //brown
+  else if (median_light < 500){ //brown
     Serial.println("Brown");
     block_picked = true;
     block_is_blue = false;
     digitalWrite(red_led, HIGH);
     stop(5000);
+  }
+  else { //air
+    Serial.println("Air");
+    block_picked = false;
+    block_is_blue = false;
+    drop(); // colour detection hasn't worked so we drop the block and pick it up again (hopefully in a slightly different orientation so that colour detection works)
+    delay(1000);
+    grab();
   }
 }
 
