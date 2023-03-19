@@ -323,6 +323,8 @@ void colour_detect() {
   }
 }
 
+
+// The below two functions are heavily influenced by this Stack Exchange answer - https://arduino.stackexchange.com/questions/38177/how-to-sort-elements-of-array-in-arduino-code
 int median(int lt[]) {
   // Number of items in the array
   int lt_length = sizeof(lt) / sizeof(lt[0]);
